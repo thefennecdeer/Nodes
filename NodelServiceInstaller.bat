@@ -83,11 +83,14 @@ set NODEL_JAR=nodelhost-release-2.2.1-rev448.jar
 set JAVA_VERSION=jdk8u382-b05
 set NODEL_HOME=C:\Nodel
 set SERVICE_HOME=C:\Nodel\Service
+set DESC=The Nodel project.
 
 call :_color2 %_White% "       - Name of the service? " %Grey% "[Main]"
 set /p SHORTROLE= ""
 call :_color2 %_White% "       - Location of the Nodel Install? " %Grey% "[C:\Nodel]"
 set /p NODEL_HOME= ""
+call :_color2 %_White% "       - Description of Nodel Install? " %Grey% "[The Nodel project.]"
+set /p DESC= ""
 call :_color2 %_White% "       - Location of the Nodel JAR? " %Grey% "[nodelhost-release-2.2.1-rev448.jar]"
 set /p NODEL_JAR= ""
 call :_color2 %_White% "       - Location of the Java JDK folder? " %Grey% "[jdk8u382-b05]"
@@ -102,9 +105,6 @@ set NAME=nodel-%SHORTROLE%
 
 rem The title / display name part e.g. "Nodel Host (main)"
 set TITLE=Nodel Host (%SHORTROLE%)
-
-rem The description part
-set DESC=The Nodel project.
 
 rem The full path to the Nodel JAR
 set NODEL_JAR_PATH=%SERVICE_HOME%\%NODEL_JAR%
