@@ -147,7 +147,7 @@ echo F|xcopy %SERVICE_HOME%\NodelHostsvcw.exe %SVCGUI_PATH%
 
 rem     (install the service)
 %SVC_PATH% //IS --DisplayName "%TITLE%" --Description "%DESC%" --Startup auto --Jvm %JAVA_DLL% --StartMode jvm --StartClass org.nodel.nodelhost.Service --StartMethod start --StopMode jvm --StopClass org.nodel.nodelhost.Service --StopMethod stop --LogPath .\logs --Classpath %NODEL_JAR_PATH%
-
+%SVC_PATH% //ES
 call :_color %_Green% "                                    Install Successful!"
 call :_color2 %_White% "                                    " %Inverse% "Press ENTER to EXIT"
 pause>nul
