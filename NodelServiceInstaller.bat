@@ -82,15 +82,18 @@ set SHORTROLE=Main
 set NODEL_JAR=nodelhost-release-2.2.1-rev448.jar
 set JAVA_VERSION=jdk8u382-b05
 set NODEL_HOME=C:\Nodel
+set SERVICE_HOME=C:\Nodel\Service
 
 call :_color2 %_White% "       - Name of the service? " %Grey% "[Main]"
 set /p SHORTROLE= ""
-call :_color2 %_White% "       - Name of the Nodel JAR? " %Grey% "[nodelhost-release-2.2.1-rev448.jar]"
-set /p NODEL_JAR= ""
-call :_color2 %_White% "       - Name of the Java JDK folder? " %Grey% "[jdk8u382-b05]"
-set /p JAVA_VERSION= ""
-call :_color2 %_White% "       - Name of the Nodel Install? " %Grey% "[C:\Nodel]"
+call :_color2 %_White% "       - Location of the Nodel Install? " %Grey% "[C:\Nodel]"
 set /p NODEL_HOME= ""
+call :_color2 %_White% "       - Location of the Nodel JAR? " %Grey% "[nodelhost-release-2.2.1-rev448.jar]"
+set /p NODEL_JAR= ""
+call :_color2 %_White% "       - Location of the Java JDK folder? " %Grey% "[jdk8u382-b05]"
+set /p JAVA_VERSION= ""
+call :_color2 %_White% "       - Location of the Nodel Service Folder? " %Grey% "[C:\Nodel\Service]"
+set /p SERVICE_HOME= ""
 
 rem The rest of these parameters are all derived from the user parameters above:
 
@@ -104,7 +107,7 @@ rem The description part
 set DESC=The Nodel project.
 
 rem The full path to the Nodel JAR
-set NODEL_JAR_PATH=%NODEL_HOME%\Service\%NODEL_JAR%
+set NODEL_JAR_PATH=%SERVICE_HOME%\%NODEL_JAR%
 if not exist %NODEL_JAR_PATH% (
   call :_color2 %_White% "                                 " %Red% " NODEL JAR NOT FOUND "
   call :_color2 %_White% "                                  " %Grey% " Make sure the name matches! "
@@ -116,7 +119,7 @@ if not exist %NODEL_JAR_PATH% (
   goto :install
 )
 rem The Java home
-set JAVA_HOME=%NODEL_HOME%\Service\%JAVA_VERSION%
+set JAVA_HOME=%SERVICE_HOME%\%JAVA_VERSION%
 if not exist %JAVA_HOME%\ (
   call :_color2 %_White% "                                     " %Red% " JAVA NOT FOUND "
   call :_color2 %_White% "                            " %Grey% " Make sure to extract the folder! "
@@ -138,8 +141,8 @@ set SVCGUI=%NAME%svcw.exe
 set SVCGUI_PATH=%NODEL_HOME%\%SVCGUI%
 
 rem     (makes a copy of the process executable so that it can be spotted easily in process lists)
-copy %NODEL_HOME%\Service\NodelHostsvc.exe.x64 %SVC_PATH%
-copy %NODEL_HOME%\Service\NodelHostsvcw.exe %SVCGUI_PATH%
+echo F|xcopy %SERVICE_HOME%\NodelHostsvc.exe.x64 %SVC_PATH%
+echo F|xcopy %SERVICE_HOME%\NodelHostsvcw.exe %SVCGUI_PATH%
 
 
 rem     (install the service)
