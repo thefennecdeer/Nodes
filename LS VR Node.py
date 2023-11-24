@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.3</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.7</sup> 
 
 ___
 
@@ -265,6 +265,8 @@ def listDeviceOutput(arg):
     console.error("No devices attached!")
   # lookup_local_action('Power').call('Off')
     local_event_HeadsetConnectionStatus.emit("Off")
+    local_event_QuestLinkStatus.emit("Off")
+
 
 def firstLaunch(arg):
   lookup_local_action('DisableProximity').call()
@@ -303,11 +305,12 @@ def LaunchApp():
   if local_event_DesiredPower.getArg() == 'On':
     lookup_local_action('DisableShell').call()
     lookup_local_action('KillShell').call()
-    call(lambda: lookup_local_action('EnableProximity').call(),30)
+    #call(lambda: lookup_local_action('EnableProximity').call(),30)
     if firstboot == True:
       call(lambda: lookup_local_action('Table App Restart').call(),5)
       firstboot = False
-    _process.start();
+    if local_event_Running.getArg() == 'Off':
+      _process.start();
 
 @local_action({'group': 'Jump Controls', 'title': 'Reboot Headset', 'order': next_seq()})  
 def RebootHeadset():
@@ -487,7 +490,7 @@ def isXRRunning(arg):
     local_event_QuestLinkStatus.emit('Off')
     headsetCheck_timer.start()
     console.log("Haven't launched Quest Link, trying again...")
-    local_event_Running.emit('Off')
+    #local_event_Running.emit('Off')
     #_process.stop()
     timeouts += 1
     LaunchLink.call()
@@ -496,12 +499,15 @@ def isXRRunning(arg):
       console.error("Can't launch Quest Link! Rebooting Quest...")
       timeouts = 0
       quick_process([_platformTools, 'reboot'])
-      call(lambda: lookup_local_action('Power').call('On'), 35)
-      lookup_local_action('Power').call('Off')
+      #call(lambda: lookup_local_action('Power').call('On'), 35)
+      #lookup_local_action('Power').call('Off')
   else:
+    global questconnected
+    questconnected = false
     console.log('Looking for Quest')
     timeouts = 0
     headsetCheck_timer.start()
+    
 
 def getBatteryLevel(arg):
   if "level" in arg.stdout:
@@ -549,7 +555,7 @@ def statusCheck():
   
 statusCheck_timer = Timer(statusCheck, 30)
 questCheck_timer = Timer(questCheck, 10, stopped=True)
-headsetCheck_timer = Timer(headsetCheck, 20, stopped=True)
+headsetCheck_timer = Timer(headsetCheck, 10, stopped=True)
 
 # --->
 
