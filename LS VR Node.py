@@ -305,7 +305,7 @@ def LaunchApp():
   if local_event_DesiredPower.getArg() == 'On':
     lookup_local_action('DisableShell').call()
     lookup_local_action('KillShell').call()
-    #call(lambda: lookup_local_action('EnableProximity').call(),30)
+    call(lambda: lookup_local_action('EnableProximity').call(),30)
     if firstboot == True:
       call(lambda: lookup_local_action('Table App Restart').call(),5)
       firstboot = False
