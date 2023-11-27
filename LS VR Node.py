@@ -503,7 +503,7 @@ def isXRRunning(arg):
       #lookup_local_action('Power').call('Off')
   else:
     global questconnected
-    questconnected = false
+    questconnected = False
     console.log('Looking for Quest')
     timeouts = 0
     headsetCheck_timer.start()
