@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.7</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8</sup> 
 
 ___
 
@@ -511,7 +511,7 @@ def isXRRunning(arg):
 
 def getBatteryLevel(arg):
   if "level" in arg.stdout:
-    local_event_Battery.emit('%s' % arg.stdout[9:])
+    local_event_Battery.emit('%s%%' % arg.stdout[9:])
       
 
 def questCheck():
