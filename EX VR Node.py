@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node** <sup>v1.4.1</sup> 
+##### **Quest 2 App Node** <sup>v1.4.4</sup> 
 ___
 
 _Requires [ADB Platform Tools](https://developer.android.com/tools/releases/platform-tools) to be installed at either `C:/content/` or an otherwise specified location in the node config._
@@ -98,6 +98,7 @@ _resolvedAppPath = None # includes entire path
 _platformTools = None
 isXRLaunched = False
 questconnected = False
+hasntdisconnected = False
 
 def main():
   # App Path MUST be specified
@@ -223,8 +224,11 @@ def listDeviceOutput(arg):
     local_event_HeadsetConnectionStatus.emit("On")
     
   else:
-    console.error("No devices attached!")
+    global hasntdisconnected
     local_event_HeadsetConnectionStatus.emit("Off")
+    console.error("No Devices Connected!")
+    hasntdisconnected = False
+    
     
 def Status_listDeviceOutput(arg):
   if len(arg.stdout.split()) > 4: #len counts from 1 
@@ -239,13 +243,14 @@ def Status_listDeviceOutput(arg):
 
   else:
     global questconnected
-    global firsttimedisconnect
-    if hasntdisconnected == True:
-      console.error("Lost connection to headset! Missing since: %s" % nowStr)
-      hasntdisconnected == False
-    
-    linkCheck_timer.stop()
+    global hasntdisconnected
     local_event_HeadsetConnectionStatus.emit('Off')
+    if hasntdisconnected == True:
+      global when
+      when = local_event_HeadsetConnectionStatus.getTimestamp().toString('E dd-MMM h:mm a')
+      console.error("Lost connection to headset! Missing since: %s" % when)
+      hasntdisconnected = False
+    linkCheck_timer.stop()
     questconnected = False
     oculusCheck_timer.setInterval(5)
 
@@ -508,16 +513,18 @@ def statusCheck():
   # check for recent interruption within the last 4 days (to incl. long weekends)
   firstInterrupted = date_parse(local_event_FirstInterrupted.getArg() or '1960')
   firstInterruptedDiff = nowMillis - firstInterrupted.getMillis()
+ 
   
   lastInterrupted = date_parse(local_event_LastInterrupted.getArg() or '1960')
   if local_event_DesiredPower.getArg() == "On":
-    if local_event_QuestLinkStatus.getArg() != 'On':
+    if local_event_HeadsetConnectionStatus.getArg() != 'On':
+      global when
+      errmsg.append('Quest is not connected to computer, since: %s' % when)
+    elif local_event_QuestLinkStatus.getArg() != 'On':
       errmsg.append('Quest Link is not running')
     elif local_event_Running.getArg() != 'On':
       errmsg.append('Application not running')
       #console.error("Application not launched, check to see if the Oculus software on the computer is in a weird state!")
-    if local_event_HeadsetConnectionStatus.getArg() != 'On':
-      errmsg.append('Quest is not connected to computer')
     if errmsg:
       local_event_Status.emit({'level': 2, 'message' : '%s' % errmsg})
     elif firstInterruptedDiff < 4*24*3600*1000L: # (4 days)
