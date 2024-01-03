@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node** <sup>v1.4.4</sup> 
+##### **Quest 2 App Node** <sup>v1.4.5</sup> 
 ___
 
 _Requires [ADB Platform Tools](https://developer.android.com/tools/releases/platform-tools) to be installed at either `C:/content/` or an otherwise specified location in the node config._
@@ -98,6 +98,7 @@ _resolvedAppPath = None # includes entire path
 _platformTools = None
 isXRLaunched = False
 questconnected = False
+global hasntdisconnected
 hasntdisconnected = False
 
 def main():
@@ -225,12 +226,16 @@ def listDeviceOutput(arg):
     
   else:
     global hasntdisconnected
+    global when
+    when = local_event_HeadsetConnectionStatus.getTimestamp().toString('E dd-MMM h:mm a')
+      
     local_event_HeadsetConnectionStatus.emit("Off")
     console.error("No Devices Connected!")
     hasntdisconnected = False
     
     
 def Status_listDeviceOutput(arg):
+  global hasntdisconnected
   if len(arg.stdout.split()) > 4: #len counts from 1 
     #console.info('Headset %s Found Again!' % arg.stdout.split()[4])
     global questconnected
@@ -240,10 +245,9 @@ def Status_listDeviceOutput(arg):
     local_event_HeadsetConnectionStatus.emit("On")
     oculusCheck_timer.setInterval(10)
     linkCheck_timer.start()
-
   else:
     global questconnected
-    global hasntdisconnected
+    
     local_event_HeadsetConnectionStatus.emit('Off')
     if hasntdisconnected == True:
       global when
@@ -494,7 +498,7 @@ def isXRRunning(arg):
     
 def getBatteryLevel(arg):
   if "level" in arg.stdout:
-    local_event_Battery.emit('%s' % arg.stdout[9:])
+    local_event_Battery.emit('%s%%' % arg.stdout[9:])
       
 def linkCheck():
     quick_process([_platformTools, 'shell "dumpsys activity activities | grep ResumedActivity"'], finished=isXRRunning)
