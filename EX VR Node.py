@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node** <sup>v1.2</sup> 
+##### **Quest 2 App Node** <sup>v1.3</sup> 
 ___
 
 _Requires [ADB Platform Tools](https://developer.android.com/tools/releases/platform-tools) to be installed at either `C:/content/` or an otherwise specified location in the node config._
@@ -281,6 +281,7 @@ def LaunchLink():
 @local_action({'group': 'Jump Controls', 'title': 'Launch Application', 'order': next_seq()})  
 def LaunchApp():
   if local_event_DesiredPower.getArg() == 'On':
+    #lookup_local_action('DisableProximity').call()
     lookup_local_action('DisableShell').call()
     lookup_local_action('KillShell').call()
     call(lambda: lookup_local_action('EnableProximity').call(),5)
@@ -462,7 +463,7 @@ def isXRRunning(arg):
     isXRLaunched = True
     timeouts = 0
     if local_event_Running.getArg() == "Off":
-      call(lambda: lookup_local_action('LaunchApp').call(),20)
+      call(lambda: lookup_local_action('LaunchApp').call(),10)
   elif questconnected == True:
     local_event_QuestLinkStatus.emit('Off')
     global timeouts
@@ -510,7 +511,7 @@ def statusCheck():
       errmsg.append('Quest Link is not running')
     elif local_event_Running.getArg() != 'On':
       errmsg.append('Application not running')
-      console.error("Application not launched, check to see if the Oculus software on the computer is in a weird state!")
+      #console.error("Application not launched, check to see if the Oculus software on the computer is in a weird state!")
     if local_event_HeadsetConnectionStatus.getArg() != 'On':
       errmsg.append('Quest is not connected to computer')
     
