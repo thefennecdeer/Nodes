@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node** <sup>v1.3</sup> 
+##### **Quest 2 App Node** <sup>v1.4.1</sup> 
 ___
 
 _Requires [ADB Platform Tools](https://developer.android.com/tools/releases/platform-tools) to be installed at either `C:/content/` or an otherwise specified location in the node config._
@@ -333,8 +333,7 @@ local_event_PowerOff = LocalEvent({ 'group': 'Power', 'title': 'Off', 'order': n
 def Power(arg):
   # clear the first interrupted
   local_event_FirstInterrupted.emit('')
-  local_event_FirstDisconnected.emit('')
-  
+
   if arg == 'On'and local_event_DesiredPower.getArg() == 'Off':
     local_event_DesiredPower.emit('On')
     #_process.start()
