@@ -60,7 +60,6 @@ local_event_FirstInterrupted = LocalEvent({'group': 'Monitoring', 'schema': {'ty
 local_event_LastInterrupted = LocalEvent({'group': 'Monitoring', 'schema': {'type': 'string'}, # holds dates
                                            'desc': 'The last time the process was "interrupted" (meaning it died/stopped prematurely)'})
 
-
 local_event_QuestLinkStatus = LocalEvent({'group': '', 'schema': {'type': 'string', 'enum': ['On', 'Off',]},
                                 'desc': 'The status of the Quest Link connection'})
 
@@ -231,15 +230,20 @@ def Status_listDeviceOutput(arg):
   if len(arg.stdout.split()) > 4: #len counts from 1 
     #console.info('Headset %s Found Again!' % arg.stdout.split()[4])
     global questconnected
+    global firsttimedisconnect
     questconnected = True
+    hasntdisconnected = True
     local_event_HeadsetConnectionStatus.emit("On")
     oculusCheck_timer.setInterval(10)
     linkCheck_timer.start()
 
   else:
     global questconnected
-    console.log(arg)
-    console.error("Lost connection to headset!")
+    global firsttimedisconnect
+    if hasntdisconnected == True:
+      console.error("Lost connection to headset! Missing since: %s" % nowStr)
+      hasntdisconnected == False
+    
     linkCheck_timer.stop()
     local_event_HeadsetConnectionStatus.emit('Off')
     questconnected = False
@@ -329,6 +333,7 @@ local_event_PowerOff = LocalEvent({ 'group': 'Power', 'title': 'Off', 'order': n
 def Power(arg):
   # clear the first interrupted
   local_event_FirstInterrupted.emit('')
+  local_event_FirstDisconnected.emit('')
   
   if arg == 'On'and local_event_DesiredPower.getArg() == 'Off':
     local_event_DesiredPower.emit('On')
@@ -504,7 +509,7 @@ def statusCheck():
   # check for recent interruption within the last 4 days (to incl. long weekends)
   firstInterrupted = date_parse(local_event_FirstInterrupted.getArg() or '1960')
   firstInterruptedDiff = nowMillis - firstInterrupted.getMillis()
-
+  
   lastInterrupted = date_parse(local_event_LastInterrupted.getArg() or '1960')
   if local_event_DesiredPower.getArg() == "On":
     if local_event_QuestLinkStatus.getArg() != 'On':
@@ -514,7 +519,6 @@ def statusCheck():
       #console.error("Application not launched, check to see if the Oculus software on the computer is in a weird state!")
     if local_event_HeadsetConnectionStatus.getArg() != 'On':
       errmsg.append('Quest is not connected to computer')
-    
     if errmsg:
       local_event_Status.emit({'level': 2, 'message' : '%s' % errmsg})
     elif firstInterruptedDiff < 4*24*3600*1000L: # (4 days)
@@ -523,8 +527,6 @@ def statusCheck():
       else:
         timeMsgs = 'last time %s, first time %s' % (toBriefTime(lastInterrupted), toBriefTime(firstInterrupted))
         local_event_Status.emit({'level': 1, 'message': 'Application interruptions may be taking place (%s)' % timeMsgs})
-  
-    
     else:
       local_event_Status.emit({'level': 0, 'message': 'OK'})
   
