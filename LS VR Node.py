@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8.1</sup> 
 
 ___
 
@@ -80,6 +80,11 @@ local_event_HeadsetConnectionStatus = LocalEvent({'group': '', 'schema': {'type'
 
 local_event_Battery = LocalEvent({'schema': {'type': 'string'}, 
                                            'desc': 'Current Battery Level'})
+
+local_event_OSVersion = LocalEvent({'group' : 'Headset Info','schema': {'type': 'string'}, 
+                                           'desc': 'Current OS version'})
+local_event_OSDate = LocalEvent({'group' : 'Headset Info','schema': {'type': 'string'}, 
+                                           'desc': 'Build date of OS version'})
 
 # ensure these signals aggressively persist their values 
 # (by default Nodel is very relaxed which is not ideal for clients that may deal with more interruptions)
@@ -512,12 +517,18 @@ def isXRRunning(arg):
 def getBatteryLevel(arg):
   if "level" in arg.stdout:
     local_event_Battery.emit('%s%%' % arg.stdout[9:])
+    
+def getOSVersion(arg):
+    splitLines = arg.stdout.splitlines()
+    local_event_OSVersion.emit('OS: %s' % splitLines[0])
+    local_event_OSDate.emit('OS Date: %s' % splitLines[1])
       
 
 def questCheck():
     quick_process([_platformTools, 'shell "dumpsys activity activities | grep xrstreamingclient"'], finished=isXRRunning)
     quick_process([_platformTools, 'shell "dumpsys battery | grep level"'], finished=getBatteryLevel)
-
+    quick_process([_platformTools, 'shell getprop ro.build.version.release; getprop ro.build.date'], finished=getOSVersion)
+    
 def headsetCheck():
   quick_process([_platformTools, 'devices'], finished=listDeviceOutput)
 
