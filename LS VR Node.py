@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8.2</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8.3</sup> 
 
 ___
 
@@ -524,8 +524,8 @@ def getBatteryLevel(arg):
     
 def getOSVersion(arg):
     splitLines = arg.stdout.splitlines()
-    local_event_OSVersion.emit('OS: %s' % splitLines[0])
-    local_event_OSDate.emit('OS Date: %s' % splitLines[1])
+    local_event_OSVersion.emit('%s' % splitLines[0])
+    local_event_OSDate.emit('%s' % splitLines[1])
       
 
 def questCheck():
