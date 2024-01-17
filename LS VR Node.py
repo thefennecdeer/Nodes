@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8.3</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8.4</sup> 
 
 ___
 
@@ -81,10 +81,13 @@ local_event_HeadsetConnectionStatus = LocalEvent({'group': '', 'schema': {'type'
 local_event_Battery = LocalEvent({'schema': {'type': 'string'}, 
                                            'desc': 'Current Battery Level'})
 
-local_event_OSVersion = LocalEvent({'group' : 'Headset Info','schema': {'type': 'string'}, 
+local_event_SerialNumber = LocalEvent({'group' : 'Headset Info','order': next_seq(),'schema': {'type': 'string'}, 
+                                           'desc': 'Serial Number of headset'})
+local_event_OSVersion = LocalEvent({'group' : 'Headset Info','order': next_seq(),'schema': {'type': 'string'}, 
                                            'desc': 'Current OS version'})
-local_event_OSDate = LocalEvent({'group' : 'Headset Info','schema': {'type': 'string'}, 
+local_event_OSDate = LocalEvent({'group' : 'Headset Info','order': next_seq(),'schema': {'type': 'string'}, 
                                            'desc': 'Build date of OS version'})
+
 
 # ensure these signals aggressively persist their values 
 # (by default Nodel is very relaxed which is not ideal for clients that may deal with more interruptions)
@@ -264,6 +267,7 @@ def finishMain():
 def listDeviceOutput(arg):
   if len(arg.stdout.split()) > 4: #len counts from 1 
     console.info('Device Attached: %s' % arg.stdout.split()[4])
+    local_event_SerialNumber.emit('%s' % arg.stdout.split()[4])
     global questconnected
     questconnected = True
     local_event_HeadsetConnectionStatus.emit("On")
