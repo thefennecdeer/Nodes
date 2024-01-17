@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8.1</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8.2</sup> 
 
 ___
 
@@ -144,6 +144,8 @@ errmsg = []
 timeouts = 0
 QUESTTIMEOUT = 2
 
+global questconnected
+
 _resolvedAppPath = None # includes entire path
 _platformTools = None
 isXRLaunched = False
@@ -274,6 +276,7 @@ def listDeviceOutput(arg):
 
 
 def firstLaunch(arg):
+  global questconnected
   lookup_local_action('DisableProximity').call()
   if "xrstreamingclient" in arg.stdout and questconnected == True:
     local_event_QuestLinkStatus.emit('On')
@@ -482,6 +485,7 @@ local_event_Status = LocalEvent({'order': -100, 'group': 'Status', 'schema': {'t
 
 def isXRRunning(arg):
   global timeouts
+  global questconnected
   if "xrstreamingclient" in arg.stdout:
     headsetCheck_timer.stop()
     local_event_QuestLinkStatus.emit('On')
