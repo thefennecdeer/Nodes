@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8.5</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8.6</sup> 
 
 ___
 
@@ -534,7 +534,7 @@ def getOSVersion(arg):
       
 
 def questCheck():
-    quick_process([_platformTools, 'shell "dumpsys activity activities | grep xrstreamingclient"'], finished=isXRRunning)
+    quick_process([_platformTools, 'shell "dumpsys activity activities | grep ResumedActivity"'], finished=isXRRunning)
     quick_process([_platformTools, 'shell "dumpsys battery | grep level"'], finished=getBatteryLevel)
     quick_process([_platformTools, 'shell getprop ro.build.version.release; getprop ro.build.date'], finished=getOSVersion)
     
