@@ -536,7 +536,7 @@ def getOSVersion(arg):
 def questCheck():
     quick_process([_platformTools, 'shell "dumpsys activity activities | grep ResumedActivity"'], finished=isXRRunning)
     quick_process([_platformTools, 'shell "dumpsys battery | grep level"'], finished=getBatteryLevel)
-    quick_process([_platformTools, 'shell getprop ro.build.version.release; getprop ro.build.date'], finished=getOSVersion)
+    quick_process([_platformTools, 'shell "dumpsys package com.oculus.vrshell | grep versionName"'], finished=getOSVersion)
     
 def headsetCheck():
   quick_process([_platformTools, 'devices'], finished=listDeviceOutput)
