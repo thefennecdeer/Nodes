@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.8.7</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.9.2</sup> 
 
 ___
 
@@ -273,11 +273,38 @@ def listDeviceOutput(arg):
     local_event_HeadsetConnectionStatus.emit("On")
     
   else:
-    console.error("No devices attached!")
   # lookup_local_action('Power').call('Off')
+    global hasntdisconnected
+    global when
     local_event_HeadsetConnectionStatus.emit("Off")
     local_event_QuestLinkStatus.emit("Off")
+    when = local_event_HeadsetConnectionStatus.getTimestamp().toString('E dd-MMM h:mm a')
+    console.error("No Devices Connected!")
+    hasntdisconnected = False
 
+def Status_listDeviceOutput(arg):
+  global hasntdisconnected
+  if len(arg.stdout.split()) > 4: #len counts from 1 
+    #console.info('Headset %s Found Again!' % arg.stdout.split()[4])
+    global questconnected
+    global firsttimedisconnect
+    questconnected = True
+    hasntdisconnected = True
+    local_event_HeadsetConnectionStatus.emit("On")
+    oculusCheck_timer.setInterval(10)
+    linkCheck_timer.start()
+  else:
+    global questconnected
+    
+    local_event_HeadsetConnectionStatus.emit('Off')
+    if hasntdisconnected == True:
+      global when
+      when = local_event_HeadsetConnectionStatus.getTimestamp().toString('E dd-MMM h:mm a')
+      console.error("Lost connection to headset! Missing since: %s" % when)
+      hasntdisconnected = False
+    linkCheck_timer.stop()
+    questconnected = False
+    oculusCheck_timer.setInterval(5)
 
 def firstLaunch(arg):
   global questconnected
@@ -365,19 +392,19 @@ local_event_PowerOff = LocalEvent({ 'group': 'Power', 'title': 'Off', 'order': n
 def Power(arg):
   # clear the first interrupted
   local_event_FirstInterrupted.emit('')
-  
   if arg == 'On'and local_event_DesiredPower.getArg() == 'Off':
     local_event_DesiredPower.emit('On')
     #_process.start()
     oculusStartup()
-    questCheck_timer.setInterval(10)
-    questCheck_timer.start()
-    headsetCheck_timer.start()
-    
+    oculusCheck_timer.setInterval(10)
+    linkCheck_timer.setInterval(10)
+    oculusCheck_timer.start()
+    linkCheck_timer.start()
   elif arg == 'Off':
     local_event_DesiredPower.emit('Off')
-    headsetCheck_timer.stop()
-    questCheck_timer.stop()
+    oculusCheck_timer.stop()
+    linkCheck_timer.stop()
+    local_event_Running.emit('Off')
     _process.stop()
     global firstboot
     firstboot = True
@@ -491,7 +518,7 @@ def isXRRunning(arg):
   global timeouts
   global questconnected
   if "xrstreamingclient" in arg.stdout:
-    headsetCheck_timer.stop()
+    oculusCheck_timer.stop()
     local_event_QuestLinkStatus.emit('On')
     isXRLaunched = True
     timeouts = 0
@@ -501,7 +528,7 @@ def isXRRunning(arg):
     # call(lambda: lookup_local_action('LaunchApp').call(),10)
   elif questconnected == True:
     local_event_QuestLinkStatus.emit('Off')
-    headsetCheck_timer.start()
+    oculusCheck_timer.start()
     console.log("Haven't launched Quest Link, trying again...")
     #local_event_Running.emit('Off')
     #_process.stop()
@@ -519,7 +546,7 @@ def isXRRunning(arg):
     questconnected = False
     console.log('Looking for Quest')
     timeouts = 0
-    headsetCheck_timer.start()
+    oculusCheck_timer.start()
     
 
 def getBatteryLevel(arg):
@@ -533,49 +560,49 @@ def getOSVersion(arg):
     local_event_OSDate.emit('%s' % splitLines[1])
       
 
-def questCheck():
+def linkCheck():
     quick_process([_platformTools, 'shell "dumpsys activity activities | grep ResumedActivity"'], finished=isXRRunning)
     quick_process([_platformTools, 'shell "dumpsys battery | grep level"'], finished=getBatteryLevel)
     quick_process([_platformTools, 'shell "dumpsys package com.oculus.vrshell | grep versionName"'], finished=getOSVersion)
     
-def headsetCheck():
-  quick_process([_platformTools, 'devices'], finished=listDeviceOutput)
-
+def oculusCheck():
+    quick_process([_platformTools, 'devices'], finished=Status_listDeviceOutput) 
 
 def statusCheck():
   # recently interrupted
   now = date_now()
   nowMillis = now.getMillis()
-  
+  errmsg = []
   # check for recent interruption within the last 4 days (to incl. long weekends)
   firstInterrupted = date_parse(local_event_FirstInterrupted.getArg() or '1960')
   firstInterruptedDiff = nowMillis - firstInterrupted.getMillis()
-
+ 
+  
   lastInterrupted = date_parse(local_event_LastInterrupted.getArg() or '1960')
   if local_event_DesiredPower.getArg() == "On":
-    if local_event_Power.getArg() != 'On':
-      errmsg.append('Application is not running')
-    if local_event_QuestLinkStatus.getArg() != 'On':
-      errmsg.append('Quest Link is not running')
     if local_event_HeadsetConnectionStatus.getArg() != 'On':
-      errmsg.append('Quest is not connected to computer')
+      global when
+      errmsg.append('Quest is not connected to computer, since: %s' % when)
+    elif local_event_QuestLinkStatus.getArg() != 'On':
+      errmsg.append('Quest Link is not running')
+    elif local_event_Running.getArg() != 'On':
+      errmsg.append('Application not running')
+      #console.error("Application not launched, check to see if the Oculus software on the computer is in a weird state!")
     if errmsg:
-      local_event_Status.emit({'level': 2, 'message' : '%s' % errmsg})
-
-  if firstInterruptedDiff < 4*24*3600*1000L: # (4 days)
-    if firstInterrupted == lastInterrupted:
-      timeMsgs = 'last time %s' % toBriefTime(lastInterrupted)
+      combinederrmsg = ', '.join(errmsg)
+      local_event_Status.emit({'level': 2, 'message' : '%s' % combinederrmsg})
+    elif firstInterruptedDiff < 4*24*3600*1000L: # (4 days)
+      if firstInterrupted == lastInterrupted:
+         timeMsgs = 'last time %s' % toBriefTime(lastInterrupted)
+      else:
+        timeMsgs = 'last time %s, first time %s' % (toBriefTime(lastInterrupted), toBriefTime(firstInterrupted))
+        local_event_Status.emit({'level': 1, 'message': 'Application interruptions may be taking place (%s)' % timeMsgs})
     else:
-      timeMsgs = 'last time %s, first time %s' % (toBriefTime(lastInterrupted), toBriefTime(firstInterrupted))
-      
-    local_event_Status.emit({'level': 1, 'message': 'Application interruptions may be taking place (%s)' % timeMsgs})
-    
-  else:
-    local_event_Status.emit({'level': 0, 'message': 'OK'})
+      local_event_Status.emit({'level': 0, 'message': 'OK'})
   
 statusCheck_timer = Timer(statusCheck, 30)
-questCheck_timer = Timer(questCheck, 10, stopped=True)
-headsetCheck_timer = Timer(headsetCheck, 10, stopped=True)
+linkCheck_timer = Timer(linkCheck, 10, stopped=True)
+oculusCheck_timer = Timer(oculusCheck, 10, stopped=True)
 
 # --->
 
