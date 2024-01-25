@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v2.0.0</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v2.1.0</sup> 
 
 ___
 
@@ -566,10 +566,8 @@ def getBatteryLevel(arg):
     
 def getOSVersion(arg):
   if arg.stdout != "":
-    splitLines = arg.stdout.splitlines()
-    local_event_OSVersion.emit('%s' % splitLines[0])
-    local_event_OSDate.emit('%s' % splitLines[1])
-      
+    splitLines = arg.stdout.strip().split("=")
+    local_event_OSVersion.emit('%s' % splitLines[1])
 
 def linkCheck():
     quick_process([_platformTools, 'shell "dumpsys activity activities | grep ResumedActivity"'], finished=isXRRunning)
