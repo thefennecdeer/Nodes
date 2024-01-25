@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v2.1.0</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v2.1.1</sup> 
 
 ___
 
@@ -86,9 +86,6 @@ local_event_SerialNumber = LocalEvent({'group' : 'Headset Info','order': next_se
                                            'desc': 'Serial Number of headset'})
 local_event_OSVersion = LocalEvent({'group' : 'Headset Info','order': next_seq(),'schema': {'type': 'string'}, 
                                            'desc': 'Current OS version'})
-local_event_OSDate = LocalEvent({'group' : 'Headset Info','order': next_seq(),'schema': {'type': 'string'}, 
-                                           'desc': 'Build date of OS version'})
-
 
 # ensure these signals aggressively persist their values 
 # (by default Nodel is very relaxed which is not ideal for clients that may deal with more interruptions)
