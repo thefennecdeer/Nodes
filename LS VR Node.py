@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v1.9.2</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v2.0.0</sup> 
 
 ___
 
@@ -19,6 +19,7 @@ _Use the `Jump Controls` group of actions to skip past the wait screen!_
 '''
 from time import sleep
 import itertools
+from org.nodel.core import BindingState
 
 # <parameters ---
 param_PowerStateOnStart = Parameter({'title': 'Running state on Node Start','order': next_seq(), 'schema': {'type': 'string', 'enum': ['On', 'Off', '(previous)']},
@@ -93,14 +94,13 @@ local_event_OSDate = LocalEvent({'group' : 'Headset Info','order': next_seq(),'s
 # (by default Nodel is very relaxed which is not ideal for clients that may deal with more interruptions)
 
 def initMember(memberInfo):
-  name = mustNotBeBlank('name', memberInfo['name'])
-                           
+  name = mustNotBeBlank('name', memberInfo['name'])                        
   disappears = memberInfo.get('disappears')
   isGroup = memberInfo.get('isGroup')
   
   create_remote_action('Member %s On' % (name), {'title': '"%s" On' % (name), 'group': 'Members Restart'}, suggestedNode=name, suggestedAction="PowerOn")
   create_remote_action('Member %s Off' % (name), {'title': '"%s" Off' % (name), 'group': 'Members Restart'}, suggestedNode=name, suggestedAction="PowerOff")
-  create_remote_action('Member %s Launch Main' % (name), {'title': '"%s" Launch Main' % (name), 'group': 'Members Restart'}, suggestedNode=name, suggestedAction="MainStart")
+  nodestotrigger.append(create_remote_action('Member %s Launch Main' % (name), {'title': '"%s" Launch Main' % (name), 'group': 'Members Restart'}, suggestedNode=name, suggestedAction="MainStart"))
 
 
   def default_handler(arg):
@@ -148,12 +148,15 @@ timeouts = 0
 QUESTTIMEOUT = 2
 
 global questconnected
+global nodestotrigger
+
 
 _resolvedAppPath = None # includes entire path
 _platformTools = None
 isXRLaunched = False
 questconnected = False
 firstboot = True
+nodestotrigger = []
 
 def main():
   # App Path MUST be specified
@@ -341,16 +344,24 @@ def LaunchLink():
 @local_action({'group': 'Jump Controls', 'title': 'Launch Application', 'order': next_seq()})  
 def LaunchApp():
   global firstboot
+  failtest = False
   if local_event_DesiredPower.getArg() == 'On':
-    lookup_local_action('DisableShell').call()
-    lookup_local_action('KillShell').call()
-    call(lambda: lookup_local_action('EnableProximity').call(),30)
-    if firstboot == True:
-      call(lambda: lookup_local_action('Table App Restart').call(),5)
-      firstboot = False
-    if local_event_Running.getArg() == 'Off':
-      _process.start();
+    for nodes in nodestotrigger:
+      if nodes.getBindingState() != BindingState.Wired:
+        failtest = True
+    if failtest == False:
+      lookup_local_action('DisableShell').call()
+      lookup_local_action('KillShell').call()
+      call(lambda: lookup_local_action('EnableProximity').call(),30)
+      if firstboot == True:
+        call(lambda: lookup_local_action('Table App Restart').call(),5)
+        firstboot = False
+      if local_event_Running.getArg() == 'Off':
+         _process.start();
+    else:
+      console.error("Table not ready, make sure the Table PC is on/ready and the node is bound in config!")
 
+                    
 @local_action({'group': 'Jump Controls', 'title': 'Reboot Headset', 'order': next_seq()})  
 def RebootHeadset():
   quick_process([_platformTools, 'reboot'])
