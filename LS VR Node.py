@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.3.0</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.3.1</sup> 
 
 ___
 
@@ -263,6 +263,7 @@ def listDeviceOutput(arg):
   if len(arg.stdout.split()) > 4: #len counts from 1 
     console.info('Device Attached: %s' % arg.stdout.split()[4])
     local_event_SerialNumber.emit('%s' % arg.stdout.split()[4])
+    global hasntdisconnected
     global questconnected
     questconnected = True
     hasntdisconnected = True
