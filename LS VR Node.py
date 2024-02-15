@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.1.1</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.2.0</sup> 
 
 ___
 
@@ -271,7 +271,6 @@ def listDeviceOutput(arg):
     global questconnected
     questconnected = True
     local_event_HeadsetConnectionStatus.emit("On")
-    
   else:
   # lookup_local_action('Power').call('Off')
     global hasntdisconnected
@@ -295,7 +294,6 @@ def Status_listDeviceOutput(arg):
     linkCheck_timer.start()
   else:
     global questconnected
-    
     local_event_HeadsetConnectionStatus.emit('Off')
     if hasntdisconnected == True:
       global when
@@ -312,7 +310,6 @@ def firstCheckXRState(arg):
     quick_process([_platformTools, 'reboot'])
   else:
     quick_process([_platformTools, 'shell "dumpsys activity activities | grep ResumedActivity"'], finished=firstLaunch)
-
     
 def firstLaunch(arg):
   global questconnected
@@ -320,16 +317,28 @@ def firstLaunch(arg):
   if "xrstreamingclient" in arg.stdout and questconnected == True:
     local_event_QuestLinkStatus.emit('On')
     isXRLaunched = True
-    console.log('Quest Link already on!')
-    call(lambda: lookup_local_action('LaunchApp').call(),5)
+    quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 1"'], finished=firstCheckFrames)
   else:
     lookup_local_action('EnableShell').call()
     LaunchLink.call()
+    quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 1"'], finished=firstCheckFrames)
+
+
+def firstCheckFrames(arg):
+  global timeouts
+  trim = arg.stdout.split("FPS=", 1)[1].split("/", 1)[1].split(",")[0]
+  if trim == "0":
+    console.error("Quest Link in bad state! Rebooting Quest...")
+    timeouts = 0
+    quick_process([_platformTools, 'reboot'])
+  else:
+    console.log('Quest Link already on!')
+    call(lambda: lookup_local_action('LaunchApp').call(),5)
+    
 
 # --- main>
 def oculusStartup():
   quick_process([_platformTools, 'devices'], finished=listDeviceOutput)
-  console.info("Launching Quest Link")
   quick_process([_platformTools, 'shell "logcat -c && logcat xrstreamingclient -d | grep RPCServer"'], finished=firstCheckXRState) 
   
 # ----- Custom Quest Actions, also available as Jump Controls ------
@@ -524,13 +533,14 @@ local_event_Status = LocalEvent({'order': -100, 'group': 'Status', 'schema': {'t
                                    'level': {'type': 'integer'},
                                    'message': {'type': 'string'}}}})
 
+
+    
 def isXRRunning(arg):
   global timeouts
   global questconnected
   if "xrstreamingclient" in arg.stdout:
     # verify that xrstreamingclient isnt stuck
     quick_process([_platformTools, 'shell "logcat -c && logcat xrstreamingclient -d | grep RPCServer"'], finished=checkXRState)
-
   elif questconnected == True:
     local_event_QuestLinkStatus.emit('Off')
     oculusCheck_timer.start()
@@ -553,20 +563,31 @@ def isXRRunning(arg):
     timeouts = 0
     oculusCheck_timer.start()
 
+def checkFrames(arg):
+  global timeouts
+  trim = arg.stdout.split("FPS=", 1)[1].split("/", 1)[1].split(",")[0]
+  if trim == "0":
+    console.error("Quest Link in bad state! Rebooting Quest...")
+    timeouts = 0
+    quick_process([_platformTools, 'reboot'])
+  else:
+    call(lambda: lookup_local_action('LaunchApp').call(),10)
+    
 def checkXRState(arg):
   global timeouts
   if "FAILED" in arg.stdout:
     console.error("Quest Link in bad state! Rebooting Quest...")
     timeouts = 0
     quick_process([_platformTools, 'reboot'])
-  else:
+  else:      
     oculusCheck_timer.stop()
     local_event_QuestLinkStatus.emit('On')
     isXRLaunched = True
     timeouts = 0
     if local_event_Running.getArg() == "Off":
       _process.stop()
-      call(lambda: lookup_local_action('LaunchApp').call(),10)
+      quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 1"'], finished=checkFrames)
+
       
 def getBatteryLevel(arg):
   if "level" in arg.stdout:
