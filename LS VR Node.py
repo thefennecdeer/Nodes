@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.2.0</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.2.1</sup> 
 
 ___
 
@@ -321,7 +321,6 @@ def firstLaunch(arg):
   else:
     lookup_local_action('EnableShell').call()
     LaunchLink.call()
-    quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 1"'], finished=firstCheckFrames)
 
 
 def firstCheckFrames(arg):
