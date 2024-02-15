@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.2.2</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.3.0</sup> 
 
 ___
 
@@ -99,7 +99,6 @@ def initMember(memberInfo):
   create_remote_action('Member %s Off' % (name), {'title': '"%s" Off' % (name), 'group': 'Members Restart'}, suggestedNode=name, suggestedAction="PowerOff")
   nodestotrigger.append(create_remote_action('Member %s Launch Main' % (name), {'title': '"%s" Launch Main' % (name), 'group': 'Members Restart'}, suggestedNode=name, suggestedAction="MainStart"))
 
-
   def default_handler(arg):
     
       #lookup_remote_action('"%s" %s' % (name),  
@@ -117,10 +116,6 @@ def initMember(memberInfo):
     metadata=basic_meta('Table App Restart', "Restart"),
     handler=default_handler
   )
-
-
-
-
 
 
 @after_main
@@ -270,6 +265,7 @@ def listDeviceOutput(arg):
     local_event_SerialNumber.emit('%s' % arg.stdout.split()[4])
     global questconnected
     questconnected = True
+    hasntdisconnected = True
     local_event_HeadsetConnectionStatus.emit("On")
   else:
   # lookup_local_action('Power').call('Off')
@@ -317,23 +313,26 @@ def firstLaunch(arg):
   if "xrstreamingclient" in arg.stdout and questconnected == True:
     local_event_QuestLinkStatus.emit('On')
     isXRLaunched = True
-    quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 5 | grep FPS"'], finished=firstCheckFrames)
+    quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 5 | grep FPS"'], timeoutInSeconds=5, finished=firstCheckFrames)
   else:
     lookup_local_action('EnableShell').call()
     LaunchLink.call()
 
-
 def firstCheckFrames(arg):
   global timeouts
-  trim = arg.stdout.split("FPS=", 1)[1].split("/", 1)[1].split(",")[0]
-  if trim == "0":
-    console.error("Quest Link in bad state! Rebooting Quest...")
-    timeouts = 0
-    quick_process([_platformTools, 'reboot'])
+  if arg:
+    if "FPS" in arg.stdout:
+      trim = arg.stdout.split("FPS=", 1)[1].split("/", 1)[1].split(",")[0]
+      if trim == "0":
+        console.error("Quest Link in bad state! Rebooting Quest...")
+        timeouts = 0
+        quick_process([_platformTools, 'reboot'])
+      else:
+        console.log('Quest Link already on!')
+        call(lambda: lookup_local_action('LaunchApp').call(),5)
   else:
-    console.log('Quest Link already on!')
-    call(lambda: lookup_local_action('LaunchApp').call(),5)
-    
+    console.error("Quest Link in bad state! Rebooting Quest...")
+    quick_process([_platformTools, 'reboot'])
 
 # --- main>
 def oculusStartup():
@@ -564,13 +563,15 @@ def isXRRunning(arg):
 
 def checkFrames(arg):
   global timeouts
-  trim = arg.stdout.split("FPS=", 1)[1].split("/", 1)[1].split(",")[0]
-  if trim == "0":
-    console.error("Quest Link in bad state! Rebooting Quest...")
-    timeouts = 0
-    quick_process([_platformTools, 'reboot'])
-  else:
-    call(lambda: lookup_local_action('LaunchApp').call(),10)
+  if arg:
+    if "FPS" in arg.stdout:
+      trim = arg.stdout.split("FPS=", 1)[1].split("/", 1)[1].split(",")[0]
+      if trim == "0":
+        console.error("Quest Link in bad state! Rebooting Quest...")
+        timeouts = 0
+        quick_process([_platformTools, 'reboot'])
+      else:
+        call(lambda: lookup_local_action('LaunchApp').call(),10)
     
 def checkXRState(arg):
   global timeouts
@@ -585,7 +586,7 @@ def checkXRState(arg):
     timeouts = 0
     if local_event_Running.getArg() == "Off":
       _process.stop()
-      quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 5 | grep FPS"'], finished=checkFrames)
+      quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 5 | grep FPS"'], timeoutInSeconds=5, finished=checkFrames)
 
       
 def getBatteryLevel(arg):
