@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.3.1</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.4.0</sup> 
 
 ___
 
@@ -372,6 +372,7 @@ def LaunchApp():
 @local_action({'group': 'Jump Controls', 'title': 'Reboot Headset', 'order': next_seq()})  
 def RebootHeadset():
   quick_process([_platformTools, 'reboot'])
+  _process.stop()
 
 
 @local_action({'group': 'Jump Controls', 'title': 'Kill Shell', 'order': next_seq()})  
@@ -573,6 +574,11 @@ def checkFrames(arg):
         quick_process([_platformTools, 'reboot'])
       else:
         call(lambda: lookup_local_action('LaunchApp').call(),10)
+  else:
+    console.error("Quest Link in bad state! Rebooting Quest...")
+    timeouts = 0
+    quick_process([_platformTools, 'reboot'])
+   
     
 def checkXRState(arg):
   global timeouts
