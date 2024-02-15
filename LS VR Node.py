@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.2.1</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.2.2</sup> 
 
 ___
 
@@ -317,7 +317,7 @@ def firstLaunch(arg):
   if "xrstreamingclient" in arg.stdout and questconnected == True:
     local_event_QuestLinkStatus.emit('On')
     isXRLaunched = True
-    quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 1"'], finished=firstCheckFrames)
+    quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 5 | grep FPS"'], finished=firstCheckFrames)
   else:
     lookup_local_action('EnableShell').call()
     LaunchLink.call()
@@ -585,7 +585,7 @@ def checkXRState(arg):
     timeouts = 0
     if local_event_Running.getArg() == "Off":
       _process.stop()
-      quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 1"'], finished=checkFrames)
+      quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 5 | grep FPS"'], finished=checkFrames)
 
       
 def getBatteryLevel(arg):
