@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.5.0</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.5.1</sup> 
 
 ___
 
@@ -574,6 +574,7 @@ def checkFrames(arg):
         timeouts = 0
         quick_process([_platformTools, 'reboot'])
       else:
+        timeouts = 0
         call(lambda: lookup_local_action('LaunchApp').call(),10)
   else:
     console.error("Quest Link in bad state! Rebooting Quest...")
@@ -591,7 +592,6 @@ def checkXRState(arg):
     oculusCheck_timer.stop()
     local_event_QuestLinkStatus.emit('On')
     isXRLaunched = True
-    timeouts = 0
     if local_event_Running.getArg() == "Off":
       _process.stop()
       quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 5 | grep FPS"'], timeoutInSeconds=5, finished=checkFrames)
