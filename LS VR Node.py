@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.4.0</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.5.0</sup> 
 
 ___
 
@@ -344,6 +344,7 @@ def oculusStartup():
 
 @local_action({'group': 'Jump Controls', 'title': 'Launch Quest Link', 'order': next_seq()})  
 def LaunchLink():
+  lookup_local_action('DisableProximity').call()
   console.info("Launching Quest Link")
   quick_process([_platformTools, 'shell am start -S com.oculus.xrstreamingclient/.MainActivity'])
 
