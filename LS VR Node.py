@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.5.2</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.5.3</sup> 
 
 ___
 
@@ -314,7 +314,7 @@ def firstLaunch(arg):
   if "xrstreamingclient" in arg.stdout and questconnected == True:
     local_event_QuestLinkStatus.emit('On')
     isXRLaunched = True
-    quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 5 | grep FPS"'], timeoutInSeconds=5, finished=firstCheckFrames)
+    quick_process([_platformTools, 'shell "logcat -s VrApi -m 5 | grep FPS"'], timeoutInSeconds=5, finished=firstCheckFrames)
   else:
     lookup_local_action('EnableShell').call()
     LaunchLink.call()
@@ -373,8 +373,10 @@ def LaunchApp():
 @local_action({'group': 'Jump Controls', 'title': 'Reboot Headset', 'order': next_seq()})  
 def RebootHeadset():
   quick_process([_platformTools, 'reboot'])
-  oculusCheck_timer.setInterval(10)
+  oculusCheck_timer.setInterval(5)
+  linkCheck_timer.stop()
   call(lambda: oculusCheck_timer.start(),3)
+  call(lambda: linkCheck_timer.start(),3)
   _process.stop()
 
 
