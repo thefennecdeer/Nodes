@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.5.4</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.5.6</sup> 
 
 ___
 
@@ -373,7 +373,9 @@ def LaunchApp():
 @local_action({'group': 'Jump Controls', 'title': 'Reboot Headset', 'order': next_seq()})  
 def RebootHeadset():
   quick_process([_platformTools, 'reboot'])
-  oculusCheck_timer.setInterval(5)
+  oculusCheck_timer.setInterval(15)
+  linkCheck_timer.setInterval(15)
+
   oculusCheck_timer.stop()
   linkCheck_timer.stop()
   call(lambda: oculusCheck_timer.start(),10)
