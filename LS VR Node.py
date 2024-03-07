@@ -549,7 +549,7 @@ def isXRRunning(arg):
     quick_process([_platformTools, 'shell "logcat -c && logcat xrstreamingclient -d | grep RPCServer"'], finished=checkXRState)
   elif questconnected == True:
     local_event_QuestLinkStatus.emit('Off')
-    oculusCheck_timer.start()
+    #oculusCheck_timer.start()
     console.log("Haven't launched Quest Link, trying again...")
     #local_event_Running.emit('Off')
     #_process.stop()
