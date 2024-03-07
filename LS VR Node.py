@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.5.3</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.5.4</sup> 
 
 ___
 
@@ -374,9 +374,10 @@ def LaunchApp():
 def RebootHeadset():
   quick_process([_platformTools, 'reboot'])
   oculusCheck_timer.setInterval(5)
+  oculusCheck_timer.stop()
   linkCheck_timer.stop()
-  call(lambda: oculusCheck_timer.start(),3)
-  call(lambda: linkCheck_timer.start(),3)
+  call(lambda: oculusCheck_timer.start(),10)
+  call(lambda: linkCheck_timer.start(),10)
   _process.stop()
 
 
