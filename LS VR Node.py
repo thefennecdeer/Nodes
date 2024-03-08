@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.5.6</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.6.5</sup> 
 
 ___
 
@@ -137,7 +137,7 @@ import sys   # launch environment info
 
 errmsg = []
 timeouts = 0
-QUESTTIMEOUT = 2
+QUESTTIMEOUT = 4
 
 global questconnected
 global nodestotrigger
@@ -303,7 +303,7 @@ def Status_listDeviceOutput(arg):
 
 def firstCheckXRState(arg):
   if "FAILED" in arg.stdout:
-    console.error("In a weird state! Rebooting Quest...")
+    console.error("In a very bad state! Rebooting Quest...")
     quick_process([_platformTools, 'reboot'])
   else:
     quick_process([_platformTools, 'shell "dumpsys activity activities | grep ResumedActivity"'], finished=firstLaunch)
@@ -372,14 +372,12 @@ def LaunchApp():
                     
 @local_action({'group': 'Jump Controls', 'title': 'Reboot Headset', 'order': next_seq()})  
 def RebootHeadset():
+  quick_process([_platformTools, 'shell pm enable com.oculus.vrshell'])
   quick_process([_platformTools, 'reboot'])
-  oculusCheck_timer.setInterval(15)
-  linkCheck_timer.setInterval(15)
-
   oculusCheck_timer.stop()
   linkCheck_timer.stop()
-  call(lambda: oculusCheck_timer.start(),10)
-  call(lambda: linkCheck_timer.start(),10)
+  call(lambda: oculusCheck_timer.start(),15)
+  call(lambda: linkCheck_timer.start(),15)
   _process.stop()
 
 
@@ -561,7 +559,7 @@ def isXRRunning(arg):
     if timeouts > QUESTTIMEOUT and isXRLaunched == False:
       console.error("Can't launch Quest Link! Rebooting Quest...")
       timeouts = 0
-      quick_process([_platformTools, 'reboot'])
+      RebootHeadset.call()
       #call(lambda: lookup_local_action('Power').call('On'), 35)
       #lookup_local_action('Power').call('Off')
   else:
@@ -577,16 +575,12 @@ def checkFrames(arg):
     if "FPS" in arg.stdout:
       trim = arg.stdout.split("FPS=", 1)[1].split("/", 1)[1].split(",")[0]
       if trim == "0":
-        console.error("Quest Link in bad state! Rebooting Quest...")
+        console.error("Zero FPS! Rebooting Quest...")
         timeouts = 0
-        quick_process([_platformTools, 'reboot'])
+        RebootHeadset.call()
       else:
         timeouts = 0
         call(lambda: lookup_local_action('LaunchApp').call(),10)
-  else:
-    console.error("Quest Link in bad state! Rebooting Quest...")
-    timeouts = 0
-    quick_process([_platformTools, 'reboot'])
    
     
 def checkXRState(arg):
@@ -594,7 +588,7 @@ def checkXRState(arg):
   if "FAILED" in arg.stdout:
     console.error("Quest Link in bad state! Rebooting Quest...")
     timeouts = 0
-    quick_process([_platformTools, 'reboot'])
+    RebootHeadset.call()
   else:      
     oculusCheck_timer.stop()
     local_event_QuestLinkStatus.emit('On')
