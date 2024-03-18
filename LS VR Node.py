@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.6.5</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.6.6</sup> 
 
 ___
 
