@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.6.7</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.6.8</sup> 
 
 ___
 
@@ -599,7 +599,7 @@ def checkXRState(arg):
     isXRLaunched = True
     if local_event_Running.getArg() == "Off":
       _process.stop()
-      quick_process([_platformTools, 'shell "logcat -c; logcat -s VrApi -m 5 | grep FPS"'], timeoutInSeconds=5, finished=checkFrames)
+      quick_process([_platformTools, 'shell "logcat -s VrApi -m 5 | grep FPS"'], timeoutInSeconds=5, finished=checkFrames)
 
       
 def getBatteryLevel(arg):
