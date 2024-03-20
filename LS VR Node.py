@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.6.8</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.0</sup> 
 
 ___
 
@@ -323,8 +323,8 @@ def firstCheckFrames(arg):
   global timeouts
   if arg:
     if "FPS" in arg.stdout:
-      trim = arg.stdout.split("FPS=", 1)[1].split("/", 1)[1].split(",")[0]
-      if trim == "0":
+      trim = arg.stdout.split("FPS=", 1)[1].split("/")
+      if trim[0] == "0" or trim[1].split(",",1)[0] == "0":
         console.error("Quest Link in bad state! Rebooting Quest...")
         timeouts = 0
         quick_process([_platformTools, 'reboot'])
@@ -573,8 +573,8 @@ def checkFrames(arg):
   global timeouts
   if arg:
     if "FPS" in arg.stdout:
-      trim = arg.stdout.split("FPS=", 1)[1].split("/", 1)[1].split(",")[0]
-      if trim == "0":
+      trim = arg.stdout.split("FPS=", 1)[1].split("/")
+      if trim[0] == "0" or trim[1].split(",",1)[0] == "0":
         console.error("Zero FPS! Rebooting Quest...")
         timeouts = 0
         RebootHeadset.call()
