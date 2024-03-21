@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.1</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.2</sup> 
 
 ___
 
@@ -291,6 +291,7 @@ def Status_listDeviceOutput(arg):
     linkCheck_timer.start()
   else:
     global questconnected
+    global timeouts
     local_event_HeadsetConnectionStatus.emit('Off')
     if hasntdisconnected == True:
       global when
@@ -298,6 +299,7 @@ def Status_listDeviceOutput(arg):
       console.error("Lost connection to headset! Missing since: %s" % when)
       hasntdisconnected = False
     linkCheck_timer.stop()
+    timeouts = 0
     questconnected = False
     oculusCheck_timer.setInterval(5)
 
