@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.0</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.1</sup> 
 
 ___
 
@@ -581,10 +581,10 @@ def checkFrames(arg):
       else:
         timeouts = 0
         call(lambda: lookup_local_action('LaunchApp').call(),10)
-    else:
-      # quest probably wants us to "connect to wifi to continue setup", kill shell to get past! 
-      lookup_local_action('DisableShell').call()
-      lookup_local_action('KillShell').call()
+  else:
+    # quest probably wants us to "connect to wifi to continue setup", kill shell to get past! 
+    lookup_local_action('DisableShell').call()
+    lookup_local_action('KillShell').call()
    
     
 def checkXRState(arg):
