@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.3</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.4</sup> 
 
 ___
 
@@ -382,7 +382,7 @@ def RebootHeadset():
   call(lambda: linkCheck_timer.start(),15)
   _process.stop()
 
-@local_action({'group': 'Jump Controls', 'title': 'Kill Oculus App', 'order': next_seq()})  
+@local_action({'group': 'Jump Controls', 'title': 'Kill Oculus Desktop App', 'order': next_seq()})  
 def KillOculusApp():
   quick_process(["taskkill", "/F /IM OVRServer_x64.exe"])
   
