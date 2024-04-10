@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.2</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.3</sup> 
 
 ___
 
@@ -382,7 +382,10 @@ def RebootHeadset():
   call(lambda: linkCheck_timer.start(),15)
   _process.stop()
 
-
+@local_action({'group': 'Jump Controls', 'title': 'Kill Oculus App', 'order': next_seq()})  
+def KillOculusApp():
+  quick_process(["taskkill", "/F /IM OVRServer_x64.exe"])
+  
 @local_action({'group': 'Jump Controls', 'title': 'Kill Shell', 'order': next_seq()})  
 def KillShell():
   quick_process([_platformTools, 'shell am force-stop com.oculus.vrshell'])
@@ -577,8 +580,9 @@ def checkFrames(arg):
     if "FPS" in arg.stdout:
       trim = arg.stdout.split("FPS=", 1)[1].split("/")
       if trim[0] == "0" or trim[1].split(",",1)[0] == "0":
-        console.error("Zero FPS! Rebooting Quest...")
+        console.error("Zero FPS! Rebooting Quest and Oculus App...")
         timeouts = 0
+        KillOculusApp.call()
         RebootHeadset.call()
       else:
         timeouts = 0
