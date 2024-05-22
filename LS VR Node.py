@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.4</sup> 
+ **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.5</sup> 
 
 ___
 
@@ -552,7 +552,11 @@ def isXRRunning(arg):
   if "xrstreamingclient" in arg.stdout:
     # verify that xrstreamingclient isnt stuck
     quick_process([_platformTools, 'shell "logcat -c && logcat xrstreamingclient -d | grep RPCServer"'], finished=checkXRState)
+  elif "protocol fault" in arg.stderr:
+    # adb server probably not running!
+    quick_process([_platformTools, 'start-server'])
   elif questconnected == True:
+    console.log(arg)
     local_event_QuestLinkStatus.emit('Off')
     #oculusCheck_timer.start()
     console.log("Haven't launched Quest Link, trying again...")
