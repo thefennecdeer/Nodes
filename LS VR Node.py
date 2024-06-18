@@ -1,5 +1,5 @@
 ''' 
- **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.5</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.8</sup> 
 
 ___
 
@@ -364,10 +364,10 @@ def LaunchApp():
       lookup_local_action('KillShell').call()
       call(lambda: lookup_local_action('EnableProximity').call(),30)
       if firstboot == True:
-        call(lambda: lookup_local_action('Table App Restart').call(),5)
         firstboot = False
-      if local_event_Running.getArg() == 'Off':
-         _process.start();
+        if local_event_Running.getArg() == 'Off':
+          _process.start()
+          call(lambda: lookup_local_action('Table App Restart').call(),15)
     else:
       console.error("Table not ready, make sure the Table PC is on/ready and the node is bound in config!")
 
@@ -584,9 +584,10 @@ def checkFrames(arg):
     if "FPS" in arg.stdout:
       trim = arg.stdout.split("FPS=", 1)[1].split("/")
       if trim[0] == "0" or trim[1].split(",",1)[0] == "0":
-        console.error("Zero FPS! Rebooting Quest and Oculus App...")
+        console.error("Zero FPS! Rebooting EVERYTHING...")
         timeouts = 0
-        KillOculusApp.call()
+        quick_process(['shutdown', '/r', '/f', '/t', '1' , '/c', 'Nodel_RESTART_in_1_seconds...']) # not happy with spaces in args
+        #KillOculusApp.call()
         RebootHeadset.call()
       else:
         timeouts = 0
