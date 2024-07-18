@@ -49,7 +49,7 @@ folder = File(NodelHost.instance().recipes().getRoot(), DEFAULT_NAME)
 class GitProxySelector(ProxySelector):
   def __init__(self, newProxy):
     self.newProxy = newProxy
-  # pattern matching for 
+  # pattern matching for github.com
   def select(self, uri):
     if "github.com" in uri.getHost().lower():
       return Arrays.asList(self.newProxy)
@@ -58,7 +58,7 @@ class GitProxySelector(ProxySelector):
   def connectFailed(uri, sa, ioe):
     if (uri == None or sa == None or ioe == None):
       console.error("Arguments can not be null.")
-
+      
 def configureProxy():
   if param_proxy != None:
     if param_proxy.get('useProxy') == True:
@@ -72,12 +72,11 @@ def configureProxy():
         console.error('Proxy is ticked, but values aren\'t valid!')
         return # abort start
     else:
-      # java remembers the proxy, we need to put it back to a direct connection
       proxy = Proxy.NO_PROXY
   else:
-    # java remembers the proxy, we need to put it back to a direct connection
     proxy = Proxy.NO_PROXY
-    
+  # ======= THIS IS GLOBAL* ==========
+  # *and by global, I mean scoped to the Java instance
   ProxySelector.setDefault(GitProxySelector(proxy)) 
 
 def main():
