@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.8</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.9</sup> 
 
 ___
 
@@ -368,6 +368,9 @@ def LaunchApp():
         if local_event_Running.getArg() == 'Off':
           _process.start()
           call(lambda: lookup_local_action('Table App Restart').call(),10)
+      else:
+        if local_event_Running.getArg() == 'Off':
+          _process.start()
     else:
       console.error("Table not ready, make sure the Table PC is on/ready and the node is bound in config!")
 
