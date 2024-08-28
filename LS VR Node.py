@@ -1,5 +1,5 @@
 ''' 
-##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.7.9</sup> 
+##### **Quest 2 App Node:** _Learning Studio Flavour_  <sup>v3.8.1</sup> 
 
 ___
 
@@ -137,7 +137,9 @@ import sys   # launch environment info
 
 errmsg = []
 timeouts = 0
+reboots = 0
 QUESTTIMEOUT = 4
+REBOOTTIMEOUT = 2
 
 global questconnected
 global nodestotrigger
@@ -368,15 +370,14 @@ def LaunchApp():
         if local_event_Running.getArg() == 'Off':
           _process.start()
           call(lambda: lookup_local_action('Table App Restart').call(),10)
-      else:
-        if local_event_Running.getArg() == 'Off':
-          _process.start()
     else:
       console.error("Table not ready, make sure the Table PC is on/ready and the node is bound in config!")
 
                     
 @local_action({'group': 'Jump Controls', 'title': 'Reboot Headset', 'order': next_seq()})  
 def RebootHeadset():
+  global reboots
+  reboots += 1
   quick_process([_platformTools, 'shell pm enable com.oculus.vrshell'])
   quick_process([_platformTools, 'reboot'])
   oculusCheck_timer.stop()
@@ -384,6 +385,9 @@ def RebootHeadset():
   call(lambda: oculusCheck_timer.start(),15)
   call(lambda: linkCheck_timer.start(),15)
   _process.stop()
+  if reboots > REBOOTTIMEOUT and isXRLaunched == False:
+    KillOculusApp.call()
+    reboots = 0
 
 @local_action({'group': 'Jump Controls', 'title': 'Kill Oculus Desktop App', 'order': next_seq()})  
 def KillOculusApp():
@@ -559,7 +563,6 @@ def isXRRunning(arg):
     # adb server probably not running!
     quick_process([_platformTools, 'start-server'])
   elif questconnected == True:
-    console.log(arg)
     local_event_QuestLinkStatus.emit('Off')
     #oculusCheck_timer.start()
     console.log("Haven't launched Quest Link, trying again...")
@@ -582,7 +585,7 @@ def isXRRunning(arg):
     oculusCheck_timer.start()
 
 def checkFrames(arg):
-  global timeouts
+  global timeouts, reboots
   if arg:
     if "FPS" in arg.stdout:
       trim = arg.stdout.split("FPS=", 1)[1].split("/")
@@ -592,6 +595,7 @@ def checkFrames(arg):
         KillOculusApp.call()
         RebootHeadset.call()
       else:
+        reboots = 0
         timeouts = 0
         call(lambda: lookup_local_action('LaunchApp').call(),10)
   else:
