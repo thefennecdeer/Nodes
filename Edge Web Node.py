@@ -16,7 +16,8 @@ param_AppArgs = Parameter({'title': 'App. Args (if none specified, will use a ge
 
 
 param_PowerStateOnStart = Parameter({'title': 'Running state on Node Start', 'schema': {'type': 'string', 'enum': ['On', 'Off', '(previous)']},
-                                     'desc': 'What "power" state to start up in when the node itself starts, typically on boot'})
+                                     'desc': 'What "power" state to start up in when the node itself starts, typically on boot',
+                                     'default': '(previous)'})
 
 param_FeedbackFilters = Parameter({'title': 'Console Feedback filters', 'schema': {'type': 'array', 'items': {'type': 'object', 'properties': {
                                      'type': {'type': 'string', 'enum': ['Include', 'Exclude'], 'order': 1},
@@ -139,6 +140,7 @@ def finishMain():
   else:
     if local_event_DesiredPower.getArg() != 'On':
       console.info('(desired power was previously off so not starting)')
+      lookup_local_action('Power').call('Off')
       _process.stop()
 
     # otherwise process will start itself
