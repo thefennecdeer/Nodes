@@ -5,7 +5,7 @@
 
 Only need to set URL in config to get running, by default uses restricted Kiosk arguments that allow for touch
 
-Creates new profile in node directory.
+Creates new profile in `%localdappdata%\\Microsoft\\Edge\\nodelprofile`.
 '''
 # <parameters ---
 
@@ -68,7 +68,9 @@ import os    # path functions
 import sys   # launch environment info
 
 _edgepath = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
-_workingdir = os.getcwd()
+_edgeprofilepath ="Microsoft\\Edge"
+_localappdata = os.getenv('LOCALAPPDATA')
+
 def main():
   # App Path MUST be specified
   if is_blank(param_URL):
@@ -124,7 +126,7 @@ def finishMain():
     cmdLine.append("--kiosk --disable-pinch --edge-kiosk-type=fullscreen --overscroll-history-navigation=0 --no-first-run --incognito")
   
   # get profile ready
-  profile_path = os.path.join(_workingdir, "edgeprofile")
+  profile_path = os.path.join(_localappdata,_edgeprofilepath, "nodelprofile")
   if not os.path.exists(profile_path):
     os.makedirs(profile_path) 
   cmdLine.append("--user-data-dir=%s" % profile_path)
