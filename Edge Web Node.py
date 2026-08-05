@@ -9,8 +9,6 @@ Creates new profile in node directory.
 '''
 # <parameters ---
 
-# quick_process(["tasklist.exe", '/fi ""IMAGENAME eq explorer.exe""'], mergeErr = True,finished=lambda arg: console.log(arg.stdout))
-
 param_URL = Parameter({'title': 'Website Url (required)', 'required': True, 'schema': {'type': 'string', 'hint': '(e.g. "www.google.com")'},
                            'desc': 'the webpage url'})
 
