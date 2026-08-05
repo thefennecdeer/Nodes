@@ -1,12 +1,15 @@
 ''' 
-#### Edge Kiosk Node
+**Edge Kiosk Node**
+
+`REV 2.2608`
 
 Only need to set URL in config to get running, by default uses restricted Kiosk arguments that allow for touch
 
-Kills all edge processes before launching to ensure Nodel maintains control.
-
+Creates new profile in node directory.
 '''
 # <parameters ---
+
+# quick_process(["tasklist.exe", '/fi ""IMAGENAME eq explorer.exe""'], mergeErr = True,finished=lambda arg: console.log(arg.stdout))
 
 param_URL = Parameter({'title': 'Website Url (required)', 'required': True, 'schema': {'type': 'string', 'hint': '(e.g. "www.google.com")'},
                            'desc': 'the webpage url'})
@@ -67,7 +70,7 @@ import os    # path functions
 import sys   # launch environment info
 
 _edgepath = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
-
+_workingdir = os.getcwd()
 def main():
   # App Path MUST be specified
   if is_blank(param_URL):
@@ -107,8 +110,8 @@ def finishMain():
     console.warn('--')
     console.warn('-- Use Nodel jar v2.2.1.404 or later OR download ProcessSandbox.exe asset manually from https://github.com/museumsvictoria/nodel/releases/tag/v2.1.1-release391 --')
     
+  
   # ready to start, dump info
-    
   console.info('This node will issue a warning status if it detects application interruptions i.e. crashing or external party closing it (not by Node)')
   if usingEmbeddedSandbox:
     console.info('(embedded Process Sandbox detected and will be used)')
@@ -120,13 +123,18 @@ def finishMain():
   if not is_blank(param_AppArgs):
     cmdLine.extend(decodeArgList(param_AppArgs))
   else:
-    cmdLine.append("--kiosk --disable-pinch --overscroll-history-navigation=0 --no-first-run --incognito")
-
-  url ="--app=%s" % param_URL
-  cmdLine.append(url)
-
+    cmdLine.append("--kiosk --disable-pinch --edge-kiosk-type=fullscreen --overscroll-history-navigation=0 --no-first-run --incognito")
   
-
+  # get profile ready
+  profile_path = os.path.join(_workingdir, "edgeprofile")
+  if not os.path.exists(profile_path):
+    os.makedirs(profile_path) 
+  cmdLine.append("--user-data-dir=%s" % profile_path)
+  
+  url ="--app=%s" % param_URL
+  
+  cmdLine.append(url)  
+  
   _process.setCommand(cmdLine)
     
   console.info('Full command-line: [%s]' % ' '.join(cmdLine))
@@ -162,8 +170,7 @@ def Power(arg):
   
   if arg == 'On' and local_event_DesiredPower.getArg() == 'Off':
     local_event_DesiredPower.emit('On')
-    console.log("KILLING EDGE")
-    quick_process(["taskkill", "/F /IM msedge.exe"])
+    
     _process.start()
     
   elif arg == 'Off':
