@@ -1,7 +1,9 @@
 ''' 
 **Edge Kiosk Node**
 
-`REV 2.2608`
+`REV 3.2608`
+
+* r3: optional profile name for multiple instances
 
 Only need to set URL in config to get running, by default uses restricted Kiosk arguments that allow for touch
 
@@ -9,18 +11,20 @@ Creates new profile in `%localdappdata%\\Microsoft\\Edge\\nodelprofile`.
 '''
 # <parameters ---
 
-param_URL = Parameter({'title': 'Website Url (required)', 'required': True, 'schema': {'type': 'string', 'hint': '(e.g. "www.google.com")'},
-                           'desc': 'the webpage url'})
-
-param_AppArgs = Parameter({'title': 'App. Args (if none specified, will use a generic kiosk setup)', 'schema': {'type': 'string', 'hint': '--kiosk --disable-pinch --overscroll-history-navigation=0 --no-first-run --incognito"'},
-                           'desc': 'Application arguments, space delimeted, backslash-escaped'})
-
-
-param_PowerStateOnStart = Parameter({'title': 'Running state on Node Start', 'schema': {'type': 'string', 'enum': ['On', 'Off', '(previous)']},
+param_PowerStateOnStart = Parameter({'title': 'Running state on Node Start', 'order': next_seq(), 'schema': {'type': 'string', 'enum': ['On', 'Off', '(previous)']},
                                      'desc': 'What "power" state to start up in when the node itself starts, typically on boot',
                                      'default': '(previous)'})
 
-param_FeedbackFilters = Parameter({'title': 'Console Feedback filters', 'schema': {'type': 'array', 'items': {'type': 'object', 'properties': {
+param_URL = Parameter({'title': 'Website Url (required)', 'required': True, 'order': next_seq(), 'schema': {'type': 'string', 'hint': '(e.g. "www.google.com")'},
+                           'desc': 'the webpage url'})
+
+param_AppArgs = Parameter({'title': 'App. Args (if none specified, will use a generic kiosk setup)', 'order': next_seq(), 'schema': {'type': 'string', 'hint': '--kiosk --disable-pinch --overscroll-history-navigation=0 --no-first-run --incognito"'},
+                           'desc': 'Application arguments, space delimeted, backslash-escaped'})
+
+param_ProfileName = Parameter({'title': 'Profile Name (must set if using multiple kiosk nodes)', 'order': next_seq(), 'schema': {'type': 'string', 'hint': '1'},
+                           'desc': 'Profile name, optional'})
+
+param_FeedbackFilters = Parameter({'title': 'Console Feedback filters', 'order': next_seq(), 'schema': {'type': 'array', 'items': {'type': 'object', 'properties': {
                                      'type': {'type': 'string', 'enum': ['Include', 'Exclude'], 'order': 1},
                                      'filter': {'type': 'string', 'order': 2}}}}})
 
@@ -126,7 +130,9 @@ def finishMain():
     cmdLine.append("--kiosk --disable-pinch --edge-kiosk-type=fullscreen --overscroll-history-navigation=0 --no-first-run --incognito")
   
   # get profile ready
-  profile_path = os.path.join(_localappdata,_edgeprofilepath, "nodelprofile")
+  profileName = "nodelprofile_%s" % param_ProfileName if not is_blank(param_ProfileName) else "nodelprofile"
+    
+  profile_path = os.path.join(_localappdata,_edgeprofilepath, profileName)
   if not os.path.exists(profile_path):
     os.makedirs(profile_path) 
   cmdLine.append("--user-data-dir=%s" % profile_path)
